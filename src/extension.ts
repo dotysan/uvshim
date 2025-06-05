@@ -1,26 +1,53 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import {
+	ExtensionContext, // interface
+	TextDocument, // interface
+	window, // namespace
+	workspace, // namespace
+} from 'vscode';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+import {
+	execSync,
+} from 'child_process';
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "uvshim" is now active!');
+const UV_SHEBANG = /^#!\s*\/usr\/bin\/env\s+-S\s+uv\s+run\s+(.*?)--script\b(.*)/;
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('uvshim.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from uvshim!');
+export function activate(ctx: ExtensionContext): void {
+	console.log('Extension "uvshim" is now active!');
+
+	const trash = workspace.onDidOpenTextDocument((doc: TextDocument) => {
+		if (doc.languageId !== 'python') return;
+		configurePythonInterpreter(doc);
 	});
-
-	context.subscriptions.push(disposable);
+	ctx.subscriptions.push(trash);
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+async function configurePythonInterpreter(doc: TextDocument): Promise<void> {
+	const firstline = doc.lineAt(0).text.trim();
+	const match = firstline.match(UV_SHEBANG);
+	if (!match) return;
+
+	const [args1, args2] = match.slice(1, 3).map(arg => arg.trim());
+	const uv_run = `uv run ${args1} ${args2} python -c 'import sys;print(sys.executable)'`;
+
+	let pybin = '';
+	try {
+		pybin = execSync(uv_run, { encoding: 'utf8' }).trim();
+	} catch (err) {
+		console.warn('Error executing uv run command:', err);
+		window.showErrorMessage('Failed to determine Python interpreter from `uv run` command.');
+		return;
+	}
+
+	const config = workspace.getConfiguration('python');
+	const current = config.get<string>('defaultInterpreterPath');
+	if (current === pybin) return;
+
+	await config.update('defaultInterpreterPath', pybin);
+	const docname = workspace.asRelativePath(doc.uri);
+	console.log(`Configured Python interpreter for ${docname}: ${pybin}`);
+	window.showInformationMessage(`Python interpreter set to: ${pybin}`);
+}
+
+export function deactivate(): void {
+	console.log('Extension "uvshim" is now inactive.');
+}
