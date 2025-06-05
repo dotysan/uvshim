@@ -9,6 +9,7 @@
                 "npm: watch:tsc",
                 "npm: watch:esbuild"
             ],
+            "options":{"env":{"PATH":"${workspaceFolder}/.venv/bin:${env:PATH}"}},
             "presentation": {
                 "reveal": "never"
             },
@@ -24,6 +25,7 @@
             "problemMatcher": "$esbuild-watch",
             "isBackground": true,
             "label": "npm: watch:esbuild",
+            "options":{"env":{"PATH":"${workspaceFolder}/.venv/bin:${env:PATH}"}},
             "presentation": {
                 "group": "watch",
                 "reveal": "never"
@@ -36,6 +38,7 @@
             "problemMatcher": "$tsc-watch",
             "isBackground": true,
             "label": "npm: watch:tsc",
+            "options":{"env":{"PATH":"${workspaceFolder}/.venv/bin:${env:PATH}"}},
             "presentation": {
                 "group": "watch",
                 "reveal": "never"
@@ -46,6 +49,7 @@
 			"script": "watch-tests",
 			"problemMatcher": "$tsc-watch",
 			"isBackground": true,
+            "options":{"env":{"PATH":"${workspaceFolder}/.venv/bin:${env:PATH}"}},
 			"presentation": {
 				"reveal": "never",
 				"group": "watchers"
