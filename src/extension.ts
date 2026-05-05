@@ -18,9 +18,8 @@ const execFileAsync = promisify(execFile);
  * Matches shebangs like:
  *   #!/usr/bin/env -S uv run --script
  *   #!/usr/bin/env -S uv run --quiet --script
- * Captures any flags between `uv run` and `--script`.
  */
-const UV_SHEBANG_RE = /^#!\s*\/usr\/bin\/env\s+-S\s+uv\s+run\s+(.*\s)?--script\b/;
+const UV_SHEBANG_RE = /^#!\s*\/usr\/bin\/env\s+-S\s+uv\s+run\s+.*--script\b/;
 
 const OUTPUT_CHANNEL = 'UV Shim';
 
@@ -87,7 +86,7 @@ async function resolveUvInterpreter(scriptPath: string): Promise<string | undefi
 		const { stdout } = await execFileAsync(
 			'uv',
 			['run', '--script', scriptPath, 'python', '-c', 'import sys; print(sys.executable)'],
-			{ cwd, timeout: 30_000 },
+			{ cwd, timeout: 10_000 },
 		);
 		const resolved = stdout.trim();
 		if (resolved) {
