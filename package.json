@@ -1,17 +1,33 @@
 {
   "name": "uvshim",
-  "displayName": "UV Interpreter Auto-Detect",
-  "description": "Sets python.defaultInterpreterPath based on uv shebangs.",
-  "version": "0.0.1",
+  "displayName": "UV Shim – Python Interpreter Auto-Detect",
+  "description": "Automatically sets the VS Code Python interpreter for scripts using `#!/usr/bin/env -S uv run --script` shebangs.",
+  "version": "0.1.0",
+  "publisher": "dotysan",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dotysan/uvshim"
+  },
   "engines": {
     "vscode": "^1.100.0"
   },
   "categories": [
+    "Programming Languages",
     "Other"
   ],
-  "activationEvents": ["*"],
+  "keywords": ["python", "uv", "interpreter", "shebang", "astral"],
+  "activationEvents": [
+    "onLanguage:python"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
+    "commands": [
+      {
+        "command": "uvshim.detectInterpreter",
+        "title": "UV Shim: Detect Python Interpreter"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
